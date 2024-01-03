@@ -7,7 +7,7 @@
 export appname="libreerp"
 export FORKNAME="odoo"
 
-swap_needed=1024
+swap_needed=4096
 
 # dependencies used by the app
 pkg_dependencies="curl postgresql xfonts-75dpi xfonts-base wkhtmltopdf node-less python3-dev gcc libldap2-dev libssl-dev libsasl2-dev python3-pip python3-dev python3-venv python3-wheel libxslt-dev libzip-dev python3-setuptools libjpeg-dev zlib1g-dev libfreetype6-dev libffi-dev libpq-dev"
@@ -189,33 +189,33 @@ ynh_add_swap () {
 	fi
 
 	# If there's enough space for a swap, and no existing swap here
-	if [ $swap_size -ne 0 ] && [ ! -e /swap_$app ]
+	if [ $swap_size -ne 0 ] && [ ! -e /swap/swap_$app ]
 	then
 		# Preallocate space for the swap file, fallocate may sometime not be used, use dd instead in this case
-		if ! fallocate -l ${swap_size}K /swap_$app
+		if ! fallocate -l ${swap_size}K /swap/swap_$app
 		then
-			dd if=/dev/zero of=/swap_$app bs=1024 count=${swap_size}
+			dd if=/dev/zero of=/swap/swap_$app bs=1024 count=${swap_size}
 		fi
-		chmod 0600 /swap_$app
+		chmod 0600 /swap/swap_$app
 		# Create the swap
-		mkswap /swap_$app
+		mkswap /swap/swap_$app
 		# And activate it
-		swapon /swap_$app
+		swapon /swap/swap_$app
 		# Then add an entry in fstab to load this swap at each boot.
-		echo -e "/swap_$app swap swap defaults 0 0 #Swap added by $app" >> /etc/fstab
+		echo -e "/swap/swap_$app swap swap defaults 0 0 #Swap added by $app" >> /etc/fstab
 	fi
 }
 
 ynh_del_swap () {
 	# If there a swap at this place
-	if [ -e /swap_$app ]
+	if [ -e /swap/swap_$app ]
 	then
 		# Clean the fstab
 		sed -i "/#Swap added by $app/d" /etc/fstab
 		# Desactive the swap file
-		swapoff /swap_$app
+		swapoff /swap/swap_$app
 		# And remove it
-		rm /swap_$app
+		rm /swap/swap_$app
 	fi
 }
 
